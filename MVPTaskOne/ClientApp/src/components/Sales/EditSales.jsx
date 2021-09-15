@@ -26,7 +26,8 @@ export class EditSales extends Component {
     )
     .then(({ data }) => {
     this.props.toggleEditSalesModal(false);
-    this.props.fetchSales();
+    this.props.fetchSalesNew(this.props.salesPerPage, false, false, false, false, false, false);
+    // this.props.fetchSales();
     })
     .catch((err) => {
       console.log(err);
@@ -57,13 +58,13 @@ export class EditSales extends Component {
     this.dateDef = this.props.editDateSold.substring(0, 10);
   return (
     <Modal open={this.props.open}>
-      <Modal.Header>Edit Sales No</Modal.Header>
+      <Modal.Header>Edit Sales</Modal.Header>
       <Modal.Content>
       <Form>
       <Form.Field
             control={Select}
             label='Product'
-            options={this.props.saleFetchProduct.map((s) => ({
+            options={this.props.products.map((s) => ({
               key: s.id,
               text: s.name,
               value: s.id,

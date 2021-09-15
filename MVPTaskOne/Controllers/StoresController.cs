@@ -27,37 +27,6 @@ namespace MVPTaskOne.Controllers
             return await _context.Store.ToListAsync();
         }
 
-        // GET: api/Stores
-        [HttpGet("{mycount}")]
-        public async Task<ActionResult<IEnumerable<Store>>> GetStorePage(int mycount)
-        {
-            return await _context.Store.Take(mycount).ToListAsync();
-        }
-
-        // GET: api/Stores
-        [HttpGet("{count}")]
-        public async Task<ActionResult<IEnumerable<Store>>> GetStoreNameSort(int count)
-        {
-            var myContext = _context.Store.OrderBy(e => e.Name).Take(count);
-            return await myContext.ToListAsync();
-        }
-
-        // GET: api/Stores
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Store>>> GetStoreNameSort()
-        {
-            var myContext = _context.Store.OrderBy(e => e.Name);
-            return await myContext.ToListAsync();
-        }
-
-        // GET: api/Stores
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Store>>> GetStoreAddressSort()
-        {
-            var myContext = _context.Store.OrderBy(e => e.Address);
-            return await myContext.ToListAsync();
-        }
-
         // GET: api/Stores/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Store>> GetStore(int id)

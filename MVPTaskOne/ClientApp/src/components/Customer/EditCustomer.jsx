@@ -20,7 +20,7 @@ export class EditCustomer extends Component {
     )
     .then(({ data }) => {
     this.props.toggleEditCustomerModal(false);
-    this.props.fetchCustomer();
+    this.props.fetchCustomerNew(this.props.customersPerPage, false, false, false, false);
     })
     .catch((err) => {
       console.log(err);
@@ -40,7 +40,7 @@ export class EditCustomer extends Component {
     this.editChangeAddress = this.props.editAddress;
   return (
     <Modal open={this.props.open}>
-      <Modal.Header>Edit Customer No {this.props.editItem} </Modal.Header>
+      <Modal.Header>Edit Customer No</Modal.Header>
       <Modal.Content>
       <Form>
         <Form.Field>

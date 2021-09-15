@@ -1,9 +1,9 @@
 import axios from 'axios';
 import React, { useState } from 'react'
-import { Button, Modal, Form } from 'semantic-ui-react'
+import { Button, Modal, Form, Label, Input } from 'semantic-ui-react'
 
 const CreateProduct = (props) => {
-  const { open, toggleCreateProductModal, fetchProduct } = props;
+  const { open, toggleCreateProductModal, fetchProductNew, productsPerPage } = props;
 
   const [product, setProduct] = useState({
     name: "",
@@ -23,14 +23,14 @@ const CreateProduct = (props) => {
       price: product.price
     })
     .then(({ data }) => {
-      fetchProduct();
+      // fetchProduct();
       toggleCreateProductModal(false);
+      fetchProductNew(productsPerPage, false, false, false, false);
     })
     .catch((err) => {
       console.log(err);
     });
   }
-
 
   return (
     <Modal open={open}>
@@ -41,10 +41,10 @@ const CreateProduct = (props) => {
             <label>Product Name</label>
             <input placeholder='Product Name' onBlur={(e) => handleProductChange("name", e.target.value)}/>
         </Form.Field>
-        <Form.Field>
-            <label>Product Price</label>
-            <input placeholder='Price' onBlur={(e) => handleProductChange("price", e.target.value)}/>
-        </Form.Field>
+        <Input label={{ basic: true, content: '$' }}
+        labelPosition='left'
+        placeholder='Price' 
+        onBlur={(e) => handleProductChange("price", e.target.value)} />
   </Form>
       </Modal.Content>
       <Modal.Actions>

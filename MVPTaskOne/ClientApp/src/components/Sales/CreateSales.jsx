@@ -3,21 +3,21 @@ import React, { useState } from 'react';
 import { Button, Modal, Form, Select } from 'semantic-ui-react';
 
 const CreateSales = (props) => {
-  const { open, toggleCreateSalesModal, fetchSales } = props;
+  const { open, toggleCreateSalesModal, salesPerPage, fetchSalesNew } = props;
 
-  const selSaleProduct = props.saleFetchProduct.map((s) => ({
+  const selSalesProduct = props.products.map((s) => ({
     key: s.id,
     text: s.name,
     value: s.id,
   }))
 
-  const selSaleCustomer = props.customers.map((s) => ({
+  const selSalesCustomer = props.customers.map((s) => ({
     key: s.id,
     text: s.name,
     value: s.id,
   }))
 
-  const selSaleStore = props.stores.map((s) => ({
+  const selSalesStore = props.stores.map((s) => ({
     key: s.id,
     text: s.name,
     value: s.id,
@@ -57,8 +57,9 @@ const CreateSales = (props) => {
       dateSold: sales.dateSold
     })
     .then(({ data }) => {
-      fetchSales();
+      // fetchSales();
       toggleCreateSalesModal(false);
+      fetchSalesNew(salesPerPage, false, false, false, false, false, false);
     })
     .catch((err) => {
       console.log(err);
@@ -67,27 +68,27 @@ const CreateSales = (props) => {
 
   return (
     <Modal open={open}>
-      <Modal.Header>Create a New Sales</Modal.Header>
+      <Modal.Header>Create a New Sale</Modal.Header>
       <Modal.Content>
       <Form>
       <Form.Field
             control={Select}
             label='Product'
-            options={selSaleProduct}
+            options={selSalesProduct}
             placeholder='Product'
             onChange={handleProductSelect}
             />
       <Form.Field
             control={Select}
             label='Customer'
-            options={selSaleCustomer}
+            options={selSalesCustomer}
             placeholder='Customer'
             onChange={handleCustomerSelect}
             />
         <Form.Field
             control={Select}
             label='Store'
-            options={selSaleStore}
+            options={selSalesStore}
             placeholder='Store'
             onChange={handleStoreSelect}
             />

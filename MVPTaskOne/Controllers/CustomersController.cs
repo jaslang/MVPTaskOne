@@ -27,37 +27,6 @@ namespace MVPTaskOne.Controllers
             return await _context.Customer.ToListAsync();
         }
 
-        // GET: api/Customers
-        [HttpGet("{mycount}")]
-        public async Task<ActionResult<IEnumerable<Customer>>> GetCustomerPage(int mycount)
-        {
-            return await _context.Customer.Take(mycount).ToListAsync();
-        }
-
-        // GET: api/Customers
-        [HttpGet("{count}")]
-        public async Task<ActionResult<IEnumerable<Customer>>> GetCustomerNameSort(int count)
-        {
-            var myContext = _context.Customer.OrderBy(e => e.Name).Take(count);
-            return await myContext.ToListAsync();
-        }
-
-        // GET: api/Customers
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Customer>>> GetCustomerNameSort()
-        {
-            var myContext = _context.Customer.OrderBy(e => e.Name);
-            return await myContext.ToListAsync();
-        }
-
-        // GET: api/Customers
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Customer>>> GetCustomerAddressSort()
-        {
-            var myContext = _context.Customer.OrderBy(e => e.Address);
-            return await myContext.ToListAsync();
-        }
-
         // GET: api/Customers/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Customer>> GetCustomer(int id)

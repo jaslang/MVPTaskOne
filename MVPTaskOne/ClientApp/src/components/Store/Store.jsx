@@ -7,6 +7,7 @@ import CreateStore from './CreateStore';
 export class Store extends Component {
   constructor(props) {
     super(props);
+    this.fetchStoreNew = this.fetchStoreNew.bind(this);
     this.state = {
       stores: [],
       storesPerPage: "", // For pagination
@@ -14,7 +15,11 @@ export class Store extends Component {
       pageNo: "",
       noSort: false,
       nameSort: false,
+      nameSortAsc: false,
+      nameSortDesc: false,
       addressSort: false,
+      addressSortAsc: false,
+      addressSortDesc: false,
       createStoreModal: false
     }
   }
@@ -37,7 +42,11 @@ export class Store extends Component {
         addressSort: false,
         storesPerPage: 10,
         stores: storesTemp.slice(0, 10),
-        totalStores: data.length 
+        totalStores: data.length,
+        addressSortAsc: false,
+        addressSortDesc: false,
+        nameSortAsc: false,
+        nameSortDesc: false
       })
     })
     .catch(err => {
@@ -45,152 +54,122 @@ export class Store extends Component {
     })
   }
 
-  fetchStorePage = (value) => {  // For pagination
-    this.setState({ storesPerPage: value });
-    const prodUrl = (`/Stores/GetStorePage/${value}`);
-    axios.get(prodUrl)
-    .then(({data}) => {
-      this.setState({
-        stores: data 
-      })
-    })
-    .catch(err => {
-      console.log(err);
-    })
-  }
-
-  fetchStorePageNext = (value) => {  // For pagination
+  // ***************** Sort, Pagination, Records per page *********************
+  fetchStoreNew = (cntPerPage, SortSel, AddrSortSel, nextPageSel, prvPageSel) => { // Store name sort
     var storesTemp;
-    var storesPageIndex = parseInt(this.state.storesPerPage) * parseInt(this.state.pageNo);
-    var nextPageCnt = storesPageIndex + parseInt(this.state.storesPerPage);
-    this.state.pageNo = parseInt(this.state.pageNo) + 1;
+    var arrayTemp;
+    var nextPageCnt;
+    var storesPageIndex;
+
+    if (SortSel === true) {
+      this.setState({
+        nameSort: true,
+        noSort: false,
+        addressSort: false,
+        addressSortAsc: false,
+        addressSortDesc: false,
+      })
+    }
+
+    if (AddrSortSel === true) {
+      this.setState({
+        nameSort: false,
+        noSort: false,
+        addressSort: true,
+        nameSortAsc: false,
+        nameSortDesc: false,
+      })
+    }
+
+    if (nextPageSel === true) {
+      storesPageIndex = parseInt(this.state.storesPerPage) * parseInt(this.state.pageNo);
+      nextPageCnt = storesPageIndex + parseInt(this.state.storesPerPage);
+      this.setState({ pageNo: parseInt(this.state.pageNo) + 1 });
+    }
+
+    if (prvPageSel === true) {
+      storesPageIndex = (parseInt(this.state.storesPerPage) * parseInt(this.state.pageNo)) - (parseInt(this.state.storesPerPage) * 2);
+      nextPageCnt = storesPageIndex + parseInt(this.state.storesPerPage);
+      this.setState({ pageNo: parseInt(this.state.pageNo) - 1 });
+    }
+
+    if (SortSel === true && this.state.nameSortAsc === false && this.state.nameSortDesc === true) {
+      this.setState({ nameSortAsc: true, nameSortDesc: false });
+    } else if (SortSel === true && this.state.nameSortAsc === true && this.state.nameSortDesc === false) {
+      this.setState({ nameSortDesc: true, nameSortAsc: false });
+    } else if (SortSel === true && this.state.nameSortAsc === false && this.state.nameSortDesc === false) {
+      this.setState({ nameSortAsc: true, nameSortDesc: false });
+    }
+
+    if (AddrSortSel === true && this.state.addressSortAsc === false && this.state.addressSortDesc === true) {
+      this.setState({ addressSortAsc: true, addressSortDesc: false });
+    } else if (AddrSortSel === true && this.state.addressSortAsc === true && this.state.addressSortDesc === false) {
+      this.setState({ addressSortDesc: true, addressSortAsc: false });
+    } else if (AddrSortSel === true && this.state.addressSortAsc === false && this.state.addressSortDesc === false) {
+      this.setState({ addressSortAsc: true, addressSortDesc: false });
+    }
+
     axios.get("/Stores/GetStore")
-    .then(({data}) => {
-      storesTemp = data;
-      this.setState({ stores: storesTemp.slice(storesPageIndex, nextPageCnt)});
-    })
-    .catch(err => {
-      console.log(err);
-    })
-  }
+      .then(({data}) => {
+        arrayTemp = data;
+        if (this.state.nameSort === true && SortSel === true && this.state.nameSortAsc === true) {
+          storesTemp = arrayTemp.sort((a, b) => (a.name > b.name) ? 1 : -1);
+        } 
+        if (this.state.nameSort === true && SortSel === true && this.state.nameSortDesc === true) {
+          storesTemp = arrayTemp.sort((a, b) => (a.name < b.name) ? 1 : -1);
+        }
+        if (SortSel === false && this.state.nameSortAsc === true) {
+          storesTemp = arrayTemp.sort((a, b) => (a.name > b.name) ? 1 : -1);
+        }
+        if (SortSel === false && this.state.nameSortDesc === true) {
+          storesTemp = arrayTemp.sort((a, b) => (a.name < b.name) ? 1 : -1);
+        }
 
-  fetchStorePagePrev = (value) => {  // For pagination
-    var storesTemp;
-    var storesPageIndex = (parseInt(this.state.storesPerPage) * parseInt(this.state.pageNo)) - (parseInt(this.state.storesPerPage) * 2);
-    var nextPageCnt = storesPageIndex + parseInt(this.state.storesPerPage);
-    this.state.pageNo = parseInt(this.state.pageNo) - 1;
-    axios.get("/Stores/GetStore")
-    .then(({data}) => {
-      storesTemp = data;
-      this.setState({ stores: storesTemp.slice(storesPageIndex, nextPageCnt)});
-    })
-    .catch(err => {
-      console.log(err);
-    })
-  }
+        if (this.state.addressSort === true && AddrSortSel === true && this.state.addressSortAsc === true) {
+          storesTemp = arrayTemp.sort((a, b) => (a.address > b.address) ? 1 : -1);
+        } 
+        if (this.state.addressSort === true && AddrSortSel === true && this.state.addressSortDesc === true) {
+          storesTemp = arrayTemp.sort((a, b) => (a.address < b.address) ? 1 : -1);
+        }
+        if (AddrSortSel === false && this.state.addressSortAsc === true) {
+          storesTemp = arrayTemp.sort((a, b) => (a.address > b.address) ? 1 : -1);
+        }
+        if (AddrSortSel === false && this.state.addressSortDesc === true) {
+          storesTemp = arrayTemp.sort((a, b) => (a.address < b.address) ? 1 : -1);
+        }
 
-  fetchStoreSort = (value) => { // Store name sort
-    var storesTemp;
-    this.setState({
-      nameSort: true,
-      noSort: false,
-      addressSort: false,
-      pageNo: 1
-    })
-    axios.get("/Stores/GetStoreNameSort")
-    .then(({data}) => {
-      storesTemp = data;
-      this.setState({
-        storesPerPage: value,
-        stores: storesTemp.slice(0, value),
-        totalStores: data.length 
+        if (this.state.noSort === true && nextPageSel === false && prvPageSel === false) {
+          storesTemp = arrayTemp;
+          storesPageIndex = (parseInt(cntPerPage) * parseInt(this.state.pageNo)) - parseInt(cntPerPage);
+          nextPageCnt = storesPageIndex + parseInt(cntPerPage);
+          this.setState({ 
+            storesPerPage: cntPerPage,
+            stores: storesTemp.slice(storesPageIndex, nextPageCnt),
+            totalStores: arrayTemp.length
+          });
+        }
+
+        if (nextPageSel === false && prvPageSel === false && this.state.noSort === false) {
+          storesPageIndex = (parseInt(cntPerPage) * parseInt(this.state.pageNo)) - parseInt(cntPerPage);
+          nextPageCnt = storesPageIndex + parseInt(cntPerPage);
+          this.setState({ 
+            storesPerPage: cntPerPage,
+            stores: storesTemp.slice(storesPageIndex, nextPageCnt),
+            totalStores: arrayTemp.length 
+          });
+        }
+        if (nextPageSel === true) {
+          storesTemp = arrayTemp;
+          this.setState({ stores: storesTemp.slice(storesPageIndex, nextPageCnt)});
+        }
+        if (prvPageSel === true) {
+          storesTemp = arrayTemp;
+          this.setState({ stores: storesTemp.slice(storesPageIndex, nextPageCnt)});
+        }
       })
-    })
-    .catch(err => {
-      console.log(err);
-    })
-  }
-
-  fetchStoreSortPageNext = (value) => {  // Store name sort next page
-    var storesTemp;
-    var storesPageIndex = parseInt(this.state.storesPerPage) * parseInt(this.state.pageNo);
-    var nextPageCnt = storesPageIndex + parseInt(this.state.storesPerPage);
-    this.state.pageNo = parseInt(this.state.pageNo) + 1;
-    axios.get("/Stores/GetStoreNameSort")
-    .then(({data}) => {
-      storesTemp = data;
-      this.setState({ stores: storesTemp.slice(storesPageIndex, nextPageCnt)});
-    })
-    .catch(err => {
-      console.log(err);
-    })
-  }
-
-  fetchStoreSortPagePrev = (value) => {  // Store name sort prev page
-    var storesTemp;
-    var storesPageIndex = (parseInt(this.state.storesPerPage) * parseInt(this.state.pageNo)) - (parseInt(this.state.storesPerPage) * 2);
-    var nextPageCnt = storesPageIndex + parseInt(this.state.storesPerPage);
-    this.state.pageNo = parseInt(this.state.pageNo) - 1;
-    axios.get("/Stores/GetStoreNameSort")
-    .then(({data}) => {
-      storesTemp = data;
-      this.setState({ stores: storesTemp.slice(storesPageIndex, nextPageCnt)});
-    })
-    .catch(err => {
-      console.log(err);
-    })
-  }
-
-  fetchStoreAddressSort = (value) => {
-    var storesTemp;
-    this.setState({
-      addressSort: true,
-      noSort: false,
-      nameSort: false,
-      pageNo: 1
-    })
-    axios.get("/Stores/GetStoreAddressSort")
-    .then(({data}) => {
-      storesTemp = data;
-      this.setState({
-        storesPerPage: value,
-        stores: storesTemp.slice(0, value),
-        totalStores: data.length 
+      .catch(err => {
+        console.log(err);
       })
-    })
-    .catch(err => {
-      console.log(err);
-    })
-  }
-
-  fetchStoreAddressSortPageNext = (value) => { 
-    var storesTemp;
-    var storesPageIndex = parseInt(this.state.storesPerPage) * parseInt(this.state.pageNo);
-    var nextPageCnt = storesPageIndex + parseInt(this.state.storesPerPage);
-    this.state.pageNo = parseInt(this.state.pageNo) + 1;
-    axios.get("/Stores/GetStoreAddressSort")
-    .then(({data}) => {
-      storesTemp = data;
-      this.setState({ stores: storesTemp.slice(storesPageIndex, nextPageCnt)});
-    })
-    .catch(err => {
-      console.log(err);
-    })
-  }
-
-  fetchStoreAddressSortPagePrev = (value) => {  
-    var storesTemp;
-    var storesPageIndex = (parseInt(this.state.storesPerPage) * parseInt(this.state.pageNo)) - (parseInt(this.state.storesPerPage) * 2);
-    var nextPageCnt = storesPageIndex + parseInt(this.state.storesPerPage);
-    this.state.pageNo = parseInt(this.state.pageNo) - 1;
-    axios.get("/Stores/GetStoreAddressSort")
-    .then(({data}) => {
-      storesTemp = data;
-      this.setState({ stores: storesTemp.slice(storesPageIndex, nextPageCnt)});
-    })
-    .catch(err => {
-      console.log(err);
-    })
   }
 
   toggleCreateStoreModal = (value) => {
@@ -200,32 +179,29 @@ export class Store extends Component {
   }
 
   render () {
-    const { stores, createStoreModal } = this.state;
+    const { stores, createStoreModal, storesPerPage, pageNo, totalStores, noSort, nameSort, addressSort, nameSortAsc, nameSortDesc, addressSortAsc, addressSortDesc } = this.state;
     return (
       <div className='margin'>
           <CreateStore open={createStoreModal} 
-            toggleCreateStoreModal={this.toggleCreateStoreModal}
-            fetchStore={this.fetchStore} />
+            toggleCreateStoreModal={this.toggleCreateStoreModal} 
+            storesPerPage={storesPerPage} 
+            fetchStoreNew={this.fetchStoreNew} />
           <h1>Store</h1>
           <br />
           <Button primary onClick={() => this.toggleCreateStoreModal(true)}>Create Store</Button>
           <p></p>
           <TableStore stores={stores} fetchStore={this.fetchStore} 
-          pageNo={this.state.pageNo} 
-          totalStores={this.state.totalStores} 
-          noSort={this.state.noSort}
-          storesPerPage={this.state.storesPerPage} 
-          fetchStorePage={this.fetchStorePage} 
-          fetchStorePageNext={this.fetchStorePageNext} 
-          fetchStorePagePrev={this.fetchStorePagePrev} 
-          fetchStoreSort={this.fetchStoreSort} 
-          nameSort={this.state.nameSort} 
-          fetchStoreSortPageNext={this.fetchStoreSortPageNext}
-          fetchStoreSortPagePrev={this.fetchStoreSortPagePrev} 
-          addressSort={this.state.addressSort}
-          fetchStoreAddressSort={this.fetchStoreAddressSort}
-          fetchStoreAddressSortPageNext={this.fetchStoreAddressSortPageNext} 
-          fetchStoreAddressSortPagePrev={this.fetchStoreAddressSortPagePrev} />
+          pageNo={pageNo} 
+          totalStores={totalStores} 
+          noSort={noSort} 
+          storesPerPage={storesPerPage} 
+          nameSort={nameSort} 
+          addressSort={addressSort} 
+          nameSortAsc={nameSortAsc} 
+          nameSortDesc={nameSortDesc} 
+          addressSortAsc={addressSortAsc} 
+          addressSortDesc={addressSortDesc} 
+          fetchStoreNew={this.fetchStoreNew} />
       </div>
     );
   }

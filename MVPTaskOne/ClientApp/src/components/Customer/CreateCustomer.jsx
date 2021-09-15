@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { Button, Modal, Form } from 'semantic-ui-react'
 
 const CreateCustomer = (props) => {
-  const { open, toggleCreateCustomerModal, fetchCustomer } = props;
+  const { open, toggleCreateCustomerModal, fetchCustomerNew, customersPerPage } = props;
 
   const [customer, setCustomer] = useState({
     name: "",
@@ -23,8 +23,9 @@ const CreateCustomer = (props) => {
       address: customer.address
     })
     .then(({ data }) => {
-      fetchCustomer();
+      // fetchCustomer();
       toggleCreateCustomerModal(false);
+      fetchCustomerNew(customersPerPage, false, false, false, false);
     })
     .catch((err) => {
       console.log(err);

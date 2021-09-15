@@ -14,7 +14,11 @@ export class Customer extends Component {
       pageNo: "",
       noSort: false,
       nameSort: false,
+      nameSortAsc: false,
+      nameSortDesc: false,
       addressSort: false,
+      addressSortAsc: false,
+      addressSortDesc: false,
       createCustomerModal: false
     }
   }
@@ -37,7 +41,11 @@ export class Customer extends Component {
         addressSort: false,
         customersPerPage: 10,
         customers: customersTemp.slice(0, 10),
-        totalCustomers: data.length 
+        totalCustomers: data.length,
+        addressSortAsc: false,
+        addressSortDesc: false,
+        nameSortAsc: false,
+        nameSortDesc: false
       })
     })
     .catch(err => {
@@ -45,153 +53,123 @@ export class Customer extends Component {
     })
   }
 
-  fetchCustomerPage = (value) => {  // For pagination
-    this.setState({ customersPerPage: value });
-    const prodUrl = (`/Customers/GetCustomerPage/${value}`);
-    axios.get(prodUrl)
-    .then(({data}) => {
-      // console.log(data);
-      this.setState({
-        customers: data 
-      })
-    })
-    .catch(err => {
-      console.log(err);
-    })
-  }
-
-  fetchCustomerPageNext = (value) => {  // For pagination
+  // ***************** Sort, Pagination, Records per page *********************
+  fetchCustomerNew = (cntPerPage, SortSel, AddrSortSel, nextPageSel, prvPageSel) => { // Customer name sort
     var customersTemp;
-    var customersPageIndex = parseInt(this.state.customersPerPage) * parseInt(this.state.pageNo);
-    var nextPageCnt = customersPageIndex + parseInt(this.state.customersPerPage);
-    this.state.pageNo = parseInt(this.state.pageNo) + 1;
+    var arrayTemp;
+    var nextPageCnt;
+    var customersPageIndex;
+
+    if (SortSel === true) {
+      this.setState({
+        nameSort: true,
+        noSort: false,
+        addressSort: false,
+        addressSortAsc: false,
+        addressSortDesc: false,
+      })
+    }
+
+    if (AddrSortSel === true) {
+      this.setState({
+        nameSort: false,
+        noSort: false,
+        addressSort: true,
+        nameSortAsc: false,
+        nameSortDesc: false,
+      })
+    }
+
+    if (nextPageSel === true) {
+      customersPageIndex = parseInt(this.state.customersPerPage) * parseInt(this.state.pageNo);
+      nextPageCnt = customersPageIndex + parseInt(this.state.customersPerPage);
+      this.setState({ pageNo: parseInt(this.state.pageNo) + 1 });
+    }
+
+    if (prvPageSel === true) {
+      customersPageIndex = (parseInt(this.state.customersPerPage) * parseInt(this.state.pageNo)) - (parseInt(this.state.customersPerPage) * 2);
+      nextPageCnt = customersPageIndex + parseInt(this.state.customersPerPage);
+      this.setState({ pageNo: parseInt(this.state.pageNo) - 1 });
+    }
+
+    if (SortSel === true && this.state.nameSortAsc === false && this.state.nameSortDesc === true) {
+      this.setState({ nameSortAsc: true, nameSortDesc: false });
+    } else if (SortSel === true && this.state.nameSortAsc === true && this.state.nameSortDesc === false) {
+      this.setState({ nameSortDesc: true, nameSortAsc: false });
+    } else if (SortSel === true && this.state.nameSortAsc === false && this.state.nameSortDesc === false) {
+      this.setState({ nameSortAsc: true, nameSortDesc: false });
+    }
+
+    if (AddrSortSel === true && this.state.addressSortAsc === false && this.state.addressSortDesc === true) {
+      this.setState({ addressSortAsc: true, addressSortDesc: false });
+    } else if (AddrSortSel === true && this.state.addressSortAsc === true && this.state.addressSortDesc === false) {
+      this.setState({ addressSortDesc: true, addressSortAsc: false });
+    } else if (AddrSortSel === true && this.state.addressSortAsc === false && this.state.addressSortDesc === false) {
+      this.setState({ addressSortAsc: true, addressSortDesc: false });
+    }
+
     axios.get("/Customers/GetCustomer")
-    .then(({data}) => {
-      customersTemp = data;
-      this.setState({ customers: customersTemp.slice(customersPageIndex, nextPageCnt)});
-    })
-    .catch(err => {
-      console.log(err);
-    })
-  }
+      .then(({data}) => {
+        arrayTemp = data;
+        if (this.state.nameSort === true && SortSel === true && this.state.nameSortAsc === true) {
+          customersTemp = arrayTemp.sort((a, b) => (a.name > b.name) ? 1 : -1);
+        } 
+        if (this.state.nameSort === true && SortSel === true && this.state.nameSortDesc === true) {
+          customersTemp = arrayTemp.sort((a, b) => (a.name < b.name) ? 1 : -1);
+        }
+        if (SortSel === false && this.state.nameSortAsc === true) {
+          customersTemp = arrayTemp.sort((a, b) => (a.name > b.name) ? 1 : -1);
+        }
+        if (SortSel === false && this.state.nameSortDesc === true) {
+          customersTemp = arrayTemp.sort((a, b) => (a.name < b.name) ? 1 : -1);
+        }
 
-  fetchCustomerPagePrev = (value) => {  // For pagination
-    var customersTemp;
-    var customersPageIndex = (parseInt(this.state.customersPerPage) * parseInt(this.state.pageNo)) - (parseInt(this.state.customersPerPage) * 2);
-    var nextPageCnt = customersPageIndex + parseInt(this.state.customersPerPage);
-    this.state.pageNo = parseInt(this.state.pageNo) - 1;
-    axios.get("/Customers/GetCustomer")
-    .then(({data}) => {
-      customersTemp = data;
-      this.setState({ customers: customersTemp.slice(customersPageIndex, nextPageCnt)});
-    })
-    .catch(err => {
-      console.log(err);
-    })
-  }
+        if (this.state.addressSort === true && AddrSortSel === true && this.state.addressSortAsc === true) {
+          customersTemp = arrayTemp.sort((a, b) => (a.address > b.address) ? 1 : -1);
+        } 
+        if (this.state.addressSort === true && AddrSortSel === true && this.state.addressSortDesc === true) {
+          customersTemp = arrayTemp.sort((a, b) => (a.address < b.address) ? 1 : -1);
+        }
+        if (AddrSortSel === false && this.state.addressSortAsc === true) {
+          customersTemp = arrayTemp.sort((a, b) => (a.address > b.address) ? 1 : -1);
+        }
+        if (AddrSortSel === false && this.state.addressSortDesc === true) {
+          customersTemp = arrayTemp.sort((a, b) => (a.address < b.address) ? 1 : -1);
+        }
 
-  fetchCustomerSort = (value) => { // Customer name sort
-    var customersTemp;
-    this.setState({
-      nameSort: true,
-      noSort: false,
-      addressSort: false,
-      pageNo: 1
-    })
-    axios.get("/Customers/GetCustomerNameSort")
-    .then(({data}) => {
-      customersTemp = data;
-      this.setState({
-        customersPerPage: value,
-        customers: customersTemp.slice(0, value),
-        totalCustomers: data.length 
+        if (this.state.noSort === true && nextPageSel === false && prvPageSel === false) {
+          customersTemp = arrayTemp;
+          customersPageIndex = (parseInt(cntPerPage) * parseInt(this.state.pageNo)) - parseInt(cntPerPage);
+          nextPageCnt = customersPageIndex + parseInt(cntPerPage);
+          this.setState({ 
+            customersPerPage: cntPerPage,
+            customers: customersTemp.slice(customersPageIndex, nextPageCnt),
+            totalCustomers: arrayTemp.length
+          });
+          // console.log(this.state.customers);
+        }
+
+        if (nextPageSel === false && prvPageSel === false && this.state.noSort === false) {
+          customersPageIndex = (parseInt(cntPerPage) * parseInt(this.state.pageNo)) - parseInt(cntPerPage);
+          nextPageCnt = customersPageIndex + parseInt(cntPerPage);
+          this.setState({ 
+            customersPerPage: cntPerPage,
+            customers: customersTemp.slice(customersPageIndex, nextPageCnt),
+            totalCustomers: arrayTemp.length 
+          });
+        }
+        if (nextPageSel === true) {
+          customersTemp = arrayTemp;
+          this.setState({ customers: customersTemp.slice(customersPageIndex, nextPageCnt)});
+        }
+        if (prvPageSel === true) {
+          customersTemp = arrayTemp;
+          this.setState({ customers: customersTemp.slice(customersPageIndex, nextPageCnt)});
+        }
       })
-    })
-    .catch(err => {
-      console.log(err);
-    })
-  }
-
-  fetchCustomerSortPageNext = (value) => {  // Customer name sort
-    var customersTemp;
-    var customersPageIndex = parseInt(this.state.customersPerPage) * parseInt(this.state.pageNo);
-    var nextPageCnt = customersPageIndex + parseInt(this.state.customersPerPage);
-    this.state.pageNo = parseInt(this.state.pageNo) + 1;
-    axios.get("/Customers/GetCustomerNameSort")
-    .then(({data}) => {
-      customersTemp = data;
-      this.setState({ customers: customersTemp.slice(customersPageIndex, nextPageCnt)});
-    })
-    .catch(err => {
-      console.log(err);
-    })
-  }
-
-  fetchCustomerSortPagePrev = (value) => {  // Customer name sort
-    var customersTemp;
-    var customersPageIndex = (parseInt(this.state.customersPerPage) * parseInt(this.state.pageNo)) - (parseInt(this.state.customersPerPage) * 2);
-    var nextPageCnt = customersPageIndex + parseInt(this.state.customersPerPage);
-    this.state.pageNo = parseInt(this.state.pageNo) - 1;
-    axios.get("/Customers/GetCustomerNameSort")
-    .then(({data}) => {
-      customersTemp = data;
-      this.setState({ customers: customersTemp.slice(customersPageIndex, nextPageCnt)});
-    })
-    .catch(err => {
-      console.log(err);
-    })
-  }
-
-  fetchCustomerAddressSort = (value) => {
-    var customersTemp;
-    this.setState({
-      addressSort: true,
-      noSort: false,
-      nameSort: false,
-      pageNo: 1
-    })
-    axios.get("/Customers/GetCustomerAddressSort")
-    .then(({data}) => {
-      customersTemp = data;
-      this.setState({
-        customersPerPage: value, 
-        customers: customersTemp.slice(0, value),
-        totalCustomers: data.length 
+      .catch(err => {
+        console.log(err);
       })
-    })
-    .catch(err => {
-      console.log(err);
-    })
-  }
-
-  fetchCustomerAddressSortPageNext = (value) => {  
-    var customersTemp;
-    var customersPageIndex = parseInt(this.state.customersPerPage) * parseInt(this.state.pageNo);
-    var nextPageCnt = customersPageIndex + parseInt(this.state.customersPerPage);
-    this.state.pageNo = parseInt(this.state.pageNo) + 1;
-    axios.get("/Customers/GetCustomerAddressSort")
-    .then(({data}) => {
-      customersTemp = data;
-      this.setState({ customers: customersTemp.slice(customersPageIndex, nextPageCnt)});
-    })
-    .catch(err => {
-      console.log(err);
-    })
-  }
-
-  fetchCustomerAddressSortPagePrev = (value) => { 
-    var customersTemp;
-    var customersPageIndex = (parseInt(this.state.customersPerPage) * parseInt(this.state.pageNo)) - (parseInt(this.state.customersPerPage) * 2);
-    var nextPageCnt = customersPageIndex + parseInt(this.state.customersPerPage);
-    this.state.pageNo = parseInt(this.state.pageNo) - 1;
-    axios.get("/Customers/GetCustomerAddressSort")
-    .then(({data}) => {
-      customersTemp = data;
-      this.setState({ customers: customersTemp.slice(customersPageIndex, nextPageCnt)});
-    })
-    .catch(err => {
-      console.log(err);
-    })
   }
 
   toggleCreateCustomerModal = (value) => {
@@ -205,8 +183,9 @@ export class Customer extends Component {
     return (
       <div className='margin'>
           <CreateCustomer open={createCustomerModal} 
-            toggleCreateCustomerModal={this.toggleCreateCustomerModal}
-            fetchCustomer={this.fetchCustomer} />
+            toggleCreateCustomerModal={this.toggleCreateCustomerModal} 
+            customersPerPage={this.state.customersPerPage} 
+            fetchCustomerNew={this.fetchCustomerNew} />
           <h1>Customer</h1>
           <br />
           <Button primary onClick={() => this.toggleCreateCustomerModal(true)}>Create Customer</Button>
@@ -214,19 +193,15 @@ export class Customer extends Component {
           <TableCustomer customers={customers} fetchCustomer={this.fetchCustomer} 
           pageNo={this.state.pageNo} 
           totalCustomers={this.state.totalCustomers} 
-          noSort={this.state.noSort}
+          noSort={this.state.noSort} 
           customersPerPage={this.state.customersPerPage} 
-          fetchCustomerPage={this.fetchCustomerPage} 
-          fetchCustomerPageNext={this.fetchCustomerPageNext} 
-          fetchCustomerPagePrev={this.fetchCustomerPagePrev} 
-          fetchCustomerSort={this.fetchCustomerSort} 
           nameSort={this.state.nameSort} 
-          fetchCustomerSortPageNext={this.fetchCustomerSortPageNext}
-          fetchCustomerSortPagePrev={this.fetchCustomerSortPagePrev} 
-          addressSort={this.state.addressSort}
-          fetchCustomerAddressSort={this.fetchCustomerAddressSort}
-          fetchCustomerAddressSortPageNext={this.fetchCustomerAddressSortPageNext} 
-          fetchCustomerAddressSortPagePrev={this.fetchCustomerAddressSortPagePrev} />
+          addressSort={this.state.addressSort} 
+          nameSortAsc={this.state.nameSortAsc} 
+          nameSortDesc={this.state.nameSortDesc} 
+          addressSortAsc={this.state.addressSortAsc} 
+          addressSortDesc={this.state.addressSortDesc} 
+          fetchCustomerNew={this.fetchCustomerNew} />
       </div>
     );
   }

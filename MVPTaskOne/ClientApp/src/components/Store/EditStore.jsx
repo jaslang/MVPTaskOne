@@ -20,7 +20,7 @@ export class EditStore extends Component {
     )
     .then(({ data }) => {
     this.props.toggleEditStoreModal(false);
-    this.props.fetchStore();
+    this.props.fetchStoreNew(this.props.storesPerPage, false, false, false, false);
     })
     .catch((err) => {
       console.log(err);
@@ -40,7 +40,7 @@ export class EditStore extends Component {
     this.editChangeAddress = this.props.editAddress;
   return (
     <Modal open={this.props.open}>
-      <Modal.Header>Edit Store No {this.props.editItem} </Modal.Header>
+      <Modal.Header>Edit Store No</Modal.Header>
       <Modal.Content>
       <Form>
         <Form.Field>

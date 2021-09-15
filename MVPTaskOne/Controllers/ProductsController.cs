@@ -27,37 +27,6 @@ namespace MVPTaskOne.Controllers
             return await _context.Product.ToListAsync();
         }
 
-        // GET: api/Products
-        [HttpGet("{mycount}")]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProductPage(int mycount)
-        {
-            return await _context.Product.Take(mycount).ToListAsync();
-        }
-
-        // GET: api/Products
-        [HttpGet("{count}")]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProductNameSort(int count)
-        {
-            var myContext = _context.Product.OrderBy(e => e.Name).Take(count);
-            return await myContext.ToListAsync();
-        }
-
-        // GET: api/Products
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProductNameSort()
-        {
-            var myContext = _context.Product.OrderBy(e => e.Name);
-            return await myContext.ToListAsync();
-        }
-
-        // GET: api/Products
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProductPriceSort()
-        {
-            var myContext = _context.Product.OrderBy(e => e.Price);
-            return await myContext.ToListAsync();
-        }
-
         // GET: api/Products/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)

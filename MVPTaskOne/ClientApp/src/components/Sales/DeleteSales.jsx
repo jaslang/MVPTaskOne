@@ -5,13 +5,15 @@ import { Button, Modal } from 'semantic-ui-react'
 export class DeleteSales extends Component {
     constructor(props) {
       super(props);
+      this.handleDelete = this.handleDelete.bind(this);
     }
 
     handleDelete = () => {
         axios.delete(`/Sales/DeleteSales/${this.props.delId}`)
         .then(({ data }) => {
             this.props.toggleDeleteSalesModal(false);
-            this.props.fetchSales();
+            this.props.fetchSalesNew(this.props.salesPerPage, false, false, false, false, false, false);
+            // this.props.fetchSales();
         })
         .catch((err) => {
           console.log(err);

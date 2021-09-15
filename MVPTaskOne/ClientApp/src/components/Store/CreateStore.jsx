@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { Button, Modal, Form } from 'semantic-ui-react'
 
 const CreateStore = (props) => {
-  const { open, toggleCreateStoreModal, fetchStore } = props;
+  const { open, toggleCreateStoreModal, fetchStoreNew, storesPerPage } = props;
 
   const [store, setStore] = useState({
     name: "",
@@ -23,14 +23,14 @@ const CreateStore = (props) => {
       address: store.address
     })
     .then(({ data }) => {
-      fetchStore();
+      // fetchStore();
       toggleCreateStoreModal(false);
+      fetchStoreNew(storesPerPage, false, false, false, false);
     })
     .catch((err) => {
       console.log(err);
     });
   }
-
 
   return (
     <Modal open={open}>

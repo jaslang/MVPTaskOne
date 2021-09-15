@@ -30,51 +30,6 @@ namespace MVPTaskOne.Controllers
             return await myContext.ToListAsync();
         }
 
-        // GET: api/Sales
-        [HttpGet("{mycount}")]
-        public async Task<ActionResult<IEnumerable<Sales>>> GetSalesPage(int mycount)
-        {
-            var myContext = _context.Sales.Include(s => s.Product)
-                .Include(s => s.Customer)
-                .Include(s => s.Store)
-                .Take(mycount);
-            return await myContext.ToListAsync();
-        }
-
-        // GET: api/Sales
-        [HttpGet("{count}")]
-        public async Task<ActionResult<IEnumerable<Sales>>> GetSalesProductIdSort(int count)
-        {
-            var myContext = _context.Sales.OrderBy(e => e.Product.Name)
-                .Include(s => s.Product)
-                .Include(s => s.Customer)
-                .Include(s => s.Store)
-                .Take(count);
-            return await myContext.ToListAsync();
-        }
-
-        // GET: api/Sales
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Sales>>> GetSalesProductIdSort()
-        {
-            var myContext = _context.Sales.OrderBy(e => e.Product.Name)
-                .Include(s => s.Product)
-                .Include(s => s.Customer)
-                .Include(s => s.Store);
-            return await myContext.ToListAsync();
-        }
-
-        // GET: api/Sales
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Sales>>> GetSalesCustomerIdSort()
-        {
-            var myContext = _context.Sales.OrderBy(e => e.Customer.Name)
-                .Include(s => s.Product)
-                .Include(s => s.Customer)
-                .Include(s => s.Store);
-            return await myContext.ToListAsync();
-        }
-
         // GET: api/Sales/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Sales>> GetSales(int id)
